@@ -1,0 +1,24 @@
+{
+    "server": {
+        "listen_address": "0.0.0.0",
+        "listen_port": 53,
+        "upstream_dns": "8.8.8.8:53",
+        "upstream_dns_secondary": "1.1.1.1:53",
+        "timeout_ms": 2000
+    },
+    "filter": {
+        "enabled": true,
+        "rule_file": "config/filter_rules.json",
+        "default_action": "pass"
+    },
+    "logging": {
+        "level": "info",
+        "file": "logs/dns_filter.log",
+        "max_size_mb": 10,
+        "max_files": 5
+    },
+    "gui": {
+        "enabled": true,
+        "http_api_port": 8080
+    }
+}
