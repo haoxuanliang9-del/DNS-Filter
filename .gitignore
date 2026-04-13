@@ -2,3 +2,7 @@ logs
 *.md
 *.txt
 *.log
+*.exe
+build
+*.txt
+test*
