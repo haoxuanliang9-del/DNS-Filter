@@ -50,9 +50,8 @@ public:
     std::optional<std::string> upstream_dns_secondary() const;
     std::optional<int> timeout_ms() const;
     // filter 配置
-    std::optional<bool> filter_enabled() const;
     std::optional<std::string> rule_file() const;
-    std::optional<std::string> default_action() const;
+    std::optional<bool> whitelist_enabled() const;
     // logging 配置
     std::optional<std::string> logging_level() const;
     std::optional<std::string> logging_file() const;

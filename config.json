@@ -7,9 +7,8 @@
         "timeout_ms": 2000
     },
     "filter": {
-        "enabled": true,
-        "rule_file": "config/filter_rules.json",
-        "default_action": "pass"
+        "rule_file": ".",
+        "whitelist_enabled": false
     },
     "logging": {
         "level": "info",

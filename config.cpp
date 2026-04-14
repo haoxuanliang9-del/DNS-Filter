@@ -214,15 +214,6 @@ bool Configer::config_valid(const nlohmann::json &config)
         return it2->get<int>();
     }
 
-    std::optional<bool> Configer::filter_enabled() const
-    {
-        auto it = config_json_.find("filter");
-        if (it == config_json_.end() || !it->is_object()) return std::nullopt;
-        const auto &f = *it;
-        auto it2 = f.find("enabled");
-        if (it2 == f.end() || !it2->is_boolean()) return std::nullopt;
-        return it2->get<bool>();
-    }
 
     std::optional<std::string> Configer::rule_file() const
     {
@@ -234,14 +225,14 @@ bool Configer::config_valid(const nlohmann::json &config)
         return it2->get<std::string>();
     }
 
-    std::optional<std::string> Configer::default_action() const
+    std::optional<bool> Configer::whitelist_enabled() const
     {
         auto it = config_json_.find("filter");
         if (it == config_json_.end() || !it->is_object()) return std::nullopt;
         const auto &f = *it;
-        auto it2 = f.find("default_action");
-        if (it2 == f.end() || !it2->is_string()) return std::nullopt;
-        return it2->get<std::string>();
+        auto it2 = f.find("whitelist_enabled");
+        if (it2 == f.end() || !it2->is_boolean()) return std::nullopt;
+        return it2->get<bool>();
     }
 
     std::optional<std::string> Configer::logging_level() const
@@ -250,7 +241,7 @@ bool Configer::config_valid(const nlohmann::json &config)
         if (it == config_json_.end() || !it->is_object()) return std::nullopt;
         const auto &l = *it;
         auto it2 = l.find("level");
-        if (it2 == l.end() || !it2->is_string()) return std::nullopt;
+        if (it2 == l.end() || !it2->is_boolean()) return std::nullopt;
         return it2->get<std::string>();
     }
 
