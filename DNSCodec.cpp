@@ -5,6 +5,7 @@ namespace dns_filter
 
 bool DNSCodec::does_need_decoding(const std::vector<uint8_t> &data)
 {
+    
     if(data.size() < 12) 
     {
         Logger::warn("DNS数据包过短，无法解析");
@@ -126,5 +127,21 @@ std::optional<std::vector<uint8_t>> DNSCodec::build_block_response(const std::ve
 
     Logger::info("成功构造拦截响应");
     return response_data;
+}
+
+bool DNSCodec::is_response(const std::vector<uint8_t> &data)
+{
+    if (data.size() < 12)
+        return false;
+    // QR 标志位在 byte[2] 的最高位
+    return (data[2] & 0x80) != 0;
+}
+
+uint16_t DNSCodec::get_transaction_id(const std::vector<uint8_t> &data)
+{
+    if (data.size() < 2)
+        return 0;
+    // Transaction ID 在前两个字节，网络字节序
+    return (static_cast<uint16_t>(data[0]) << 8) | data[1];
 }
 }

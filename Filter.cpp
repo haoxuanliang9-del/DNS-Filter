@@ -9,8 +9,23 @@
 namespace dns_filter
 {
 
+std::shared_ptr<Filter::ConfigSubscriberProxy> Filter::subscriber_proxy_ = nullptr;
+
+// 订阅者代理实现
+void Filter::ConfigSubscriberProxy::update(const std::string& key)
+{
+    Filter::get_filter().on_config_update(key);
+}
+
 Filter::Filter()
 {
+    // 注册配置订阅（订阅顶层 key "filter"，其下任意字段变更都会通知）
+    if (!subscriber_proxy_)
+    {
+        subscriber_proxy_ = std::make_shared<ConfigSubscriberProxy>();
+        Configer::get_configer().subscribe("filter", subscriber_proxy_);
+    }
+
     if(Configer::get_configer().whitelist_enabled().value_or(false))
     {
         Logger::info("启用白名单");
@@ -79,21 +94,27 @@ bool Filter::is_ads(const std::string &domain) const
     return blacklist_.find(domain) != blacklist_.end();
 }
 
-void Filter::update(const std::string &key)
+void Filter::on_config_update(const std::string &key)
 {
-    if (key == "whitelist_enabled")
+    if (key == "filter")
     {
-        if(Configer::get_configer().whitelist_enabled().value_or(false))
+        // filter 下任意字段变更，统一重新读取配置
+        auto enabled = Configer::get_configer().whitelist_enabled();
+        if (enabled.has_value() && enabled.value())
         {
-            if(whitelist_enabled_)
-            {
-                Logger::info("白名单已经启动，无需重复启用");
-            }
-            else
+            if (!whitelist_enabled_)
             {
                 Logger::info("启用白名单");
+                try
+                {
+                    load_list(rule_dir_ + "/whitelist.txt", whitelist_);
+                }
+                catch (const std::exception &e)
+                {
+                    Logger::error("无法加载白名单文件");
+                    return;
+                }
                 whitelist_enabled_ = true;
-                load_list(rule_dir_ + "/whitelist.txt", whitelist_);
             }
         }
         else
@@ -104,13 +125,22 @@ void Filter::update(const std::string &key)
                 whitelist_enabled_ = false;
                 whitelist_.clear();
             }
-            else
+        }
+
+        // 规则文件路径变更时重新加载黑名单
+        auto dir = Configer::get_configer().rule_file();
+        if (dir.has_value() && dir.value() != rule_dir_)
+        {
+            rule_dir_ = dir.value();
+            blacklist_.clear();
+            load_list(rule_dir_ + "/blacklist.txt", blacklist_);
+            if (whitelist_enabled_)
             {
-                Logger::info("白名单已禁用，无需重复禁用");
+                whitelist_.clear();
+                load_list(rule_dir_ + "/whitelist.txt", whitelist_);
             }
+            Logger::info("规则文件路径已更新，重新加载: " + rule_dir_);
         }
     }
-
-
 }
 }

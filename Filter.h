@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 #include "configsubscriber.h"
 #include <unordered_set>
 
@@ -9,7 +10,7 @@
 namespace dns_filter
 {
 
-class Filter : public ConfigSubscriber
+class Filter
 {
 public:
     Filter(const Filter &) = delete;
@@ -23,7 +24,7 @@ public:
         return filter;
     }
 
-    void update(const std::string &key);
+    void on_config_update(const std::string &key);
     bool is_ads(const std::string &domain) const;
 
 private:
@@ -37,7 +38,13 @@ private:
 
     Filter();
 
-    
+    // 订阅者代理
+    class ConfigSubscriberProxy : public ConfigSubscriber
+    {
+    public:
+        void update(const std::string& key) override;
+    };
+    static std::shared_ptr<ConfigSubscriberProxy> subscriber_proxy_;
 
     void load_list(const std::string &file_path, std::unordered_set<std::string> &list);
 

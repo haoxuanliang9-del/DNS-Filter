@@ -23,8 +23,9 @@ namespace dns_filter
 
     void Logger::update(const std::string &key)
     {
-        if (key == "logging" || key == "level" || key == "file" || key == "max_size_mb" || key == "max_files")
+        if (key == "logging")
         {
+            // logging 下任意字段变更，重新构建日志器
             rebuild_from_config();
         }
     }

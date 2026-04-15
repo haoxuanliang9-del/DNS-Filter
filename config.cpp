@@ -161,11 +161,12 @@ bool Configer::config_valid(const nlohmann::json &config)
         if (it == config_json_.end() || !it->is_object())
             return std::nullopt;
         const auto &srv = *it;
-        auto it2 = srv.find("listen_addr");
+
+        auto it2 = srv.find("listen_address");
         if (it2 != srv.end() && it2->is_string())
             return it2->get<std::string>();
 
-        it2 = srv.find("listen_address");
+        it2 = srv.find("listen_addr");
         if (it2 != srv.end() && it2->is_string())
             return it2->get<std::string>();
 
@@ -241,7 +242,7 @@ bool Configer::config_valid(const nlohmann::json &config)
         if (it == config_json_.end() || !it->is_object()) return std::nullopt;
         const auto &l = *it;
         auto it2 = l.find("level");
-        if (it2 == l.end() || !it2->is_boolean()) return std::nullopt;
+        if (it2 == l.end() || !it2->is_string()) return std::nullopt;
         return it2->get<std::string>();
     }
 
@@ -299,7 +300,7 @@ bool Configer::config_valid(const nlohmann::json &config)
     nlohmann::json Configer::default_config()
     {
         return nlohmann::json{
-            {"server", {{"listen_addr", "127.0.0.1"}, {"listen_port", 53}, {"upstream_dns", "8.8.8.8:53"}, {"upstream_dns_secondary", "1.1.1.1:53"}, {"timeout_ms", 2000}}},
+            {"server", {{"listen_address", "0.0.0.0"}, {"listen_port", 5353}, {"upstream_dns", "8.8.8.8:53"}, {"upstream_dns_secondary", "1.1.1.1:53"}, {"timeout_ms", 2000}}},
             {"filter", {{"enabled", true}, {"rule_file", "config/filter_rules.json"}, {"default_action", "pass"}}},
             {"logging", {{"level", "info"}, {"file", "logs/dns_filter.log"}, {"max_size_mb", 10}, {"max_files", 5}}},
             {"gui", {{"enabled", true}, {"http_api_port", 8080}}}
